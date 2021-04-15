@@ -1,10 +1,13 @@
-version: '3.4'
-
-services:
-  python:
-    image: python
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - 5001:5001
+version: "3"
+services: 
+    mymongo_1:
+        image: "mongo"
+        ports:
+          - "500:27017"
+    
+    myreader:
+        build: .
+        depends_on: 
+            - mymongo_1
+        ports:
+            - "5001:5001"
