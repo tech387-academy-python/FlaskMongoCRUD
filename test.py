@@ -1,7 +1,11 @@
-from flask import Flask, request, json, Response
+from flask import Flask, request, json, Response, jsonify
 from pymongo import MongoClient
+import mysql.connector
 
 app = Flask(__name__)
+
+def getMysqlConnection():
+    return mysql.connector.connect(user='root', host='python_db_1', port='3306', password='root', database='ChargerDatabase')
 
 class MongoAPI: 
     def __init__(self, data):
@@ -52,6 +56,24 @@ def base():
                     mimetype='application/json')
   
 # ROUTES
+@app.route('/sql', methods=['GET'])
+def get_months():
+    try:
+        dbb = getMysqlConnection()
+        print(dbb)
+            
+        sqlstr = "SELECT * from SiteData"
+        print(sqlstr)
+        cur = dbb.cursor()
+        cur.execute(sqlstr)
+        output_json = cur.fetchall()
+    except Exception as e:
+        print("Error in SQL:\n", e)
+    finally:
+        dbb.close()
+    return jsonify(results=output_json)
+
+
 @app.route('/mongodb', methods=['GET'])
 def mongo_read():
     data = {
@@ -118,7 +140,7 @@ def mongo_delete():
         "database": "cat_app",
         "collection": "cats",
         "Filter": {
-            "name": "George"
+            "name": "best cat"
         }
         }
     if data is None or data == {} or 'Filter' not in data:
